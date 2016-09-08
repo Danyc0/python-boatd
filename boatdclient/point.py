@@ -137,15 +137,22 @@ class Point(object):
         :param distance: Distance from the current waypoint
         :return: The point described by the parameters
         '''
-        target_lat = math.asin(math.sin(self.lat_radians) * math.cos(distance / EARTH_RADIUS +
-                                                                     math.cos(self.lat_radians) * math.sin(
-                                                                         distance / EARTH_RADIUS) *
-                                                                     math.cos(float(bearing_to_point))))
+        
+        rad_distance = distance / EARTH_RADIUS
+        target_long = math.asin((math.sin(self.lon_radians) * math.cos(rad_distance)) +
+                                (math.cos(self.lon_radians) * math.sin(rad_distance) * math.cos(float(bearing_to_point))))
 
-        target_long = self.long_radians + math.atan2(math.sin(float(bearing_to_point)) *
-                                                     math.sin(distance / EARTH_RADIUS) * math.cos(self.lat_radians),
-                                                     math.cos(distance / EARTH_RADIUS) - math.sin(self.lat_radians) *
-                                                     math.sin(target_lat))
+        a = math.sin(rad_distance) * math.sin(float(bearing_to_point))
+        b = (math.cos(self.lon_radians) * math.cos(rad_distance)) - (math.sin(self.lon_radians) * math.sin(rad_distance) math.cos(float(bearing_to_point)))
+        
+        if b == 0:
+            target_lat = self.lat_radians
+        else:
+            target_lat = self.lat_radians + math.atan2(a/b)
+
+        target_lat = math.degrees(target_lat)
+        target_long = math.degrees(target_long)
+
         return Point(target_lat, target_long)
     
 
